@@ -1,5 +1,9 @@
 package com.augustin.airquality;
 
+/**
+ * Enum representing Info in Csv
+ * Each index is corresponding at a column in the csv
+ */
 public enum CsvEnum {
     START_DATE(0),
     END_DATE(1),

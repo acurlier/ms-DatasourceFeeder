@@ -15,6 +15,8 @@ import org.apache.commons.csv.CSVRecord;
 
 public final class CsvDataRetriever {
     public static Map<String, Map<CsvEnum, String>> getInfoTableFromURL(String targetURL) throws MalformedURLException {
+        // we store our data in combinedInfo with the schema
+        // { 2022/03/09 03:00:00: [{ 0: 2022/03/09 03:00:00 }, { 1: 2022/03/09 04:00:00 }, ... ] }
         final Map<String, Map<CsvEnum, String>> combinedInfo = new TreeMap<>();
         URL url = new URL(targetURL);
         CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase();
@@ -26,6 +28,7 @@ public final class CsvDataRetriever {
                 final String[] csvLine = csvRecord.get(0).split(";");
  
                 final Map<CsvEnum, String> info = new TreeMap<>();
+                // use CsvEnum id for getting all info from csv
                 for (CsvEnum csvElementId : CsvEnum.values()) {
                     info.put(csvElementId, csvLine[csvElementId.getIndex()]);
                 }
