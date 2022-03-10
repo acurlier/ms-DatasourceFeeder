@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,10 +15,10 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 public final class CsvDataRetriever {
-    public static Map<String, Map<CsvEnum, String>> getInfoTableFromURL(String targetURL) throws MalformedURLException {
+    public static List<Map<CsvEnum, String>> getInfoTableFromURL(String targetURL) throws MalformedURLException {
         // we store our data in combinedInfo with the schema
         // { 2022/03/09 03:00:00: [{ 0: 2022/03/09 03:00:00 }, { 1: 2022/03/09 04:00:00 }, ... ] }
-        final Map<String, Map<CsvEnum, String>> combinedInfo = new TreeMap<>();
+        final List<Map<CsvEnum, String>> combinedInfo = new ArrayList<>();
         URL url = new URL(targetURL);
 
         CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(';').withFirstRecordAsHeader().withIgnoreHeaderCase();
@@ -28,7 +30,7 @@ public final class CsvDataRetriever {
                 for (CsvEnum csvElementId : CsvEnum.values()) {
                     info.put(csvElementId, csvRecord.get(csvElementId.getIndex()));
                 }
-                combinedInfo.put(info.get(CsvEnum.START_DATE), info);
+                combinedInfo.add(info);
 
                 // old
                 // String bedDate = csvRecord.get(1);
