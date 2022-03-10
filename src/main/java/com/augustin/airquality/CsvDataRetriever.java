@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,18 +18,15 @@ public final class CsvDataRetriever {
         // { 2022/03/09 03:00:00: [{ 0: 2022/03/09 03:00:00 }, { 1: 2022/03/09 04:00:00 }, ... ] }
         final Map<String, Map<CsvEnum, String>> combinedInfo = new TreeMap<>();
         URL url = new URL(targetURL);
-        CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase();
+
+        CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(';').withFirstRecordAsHeader().withIgnoreHeaderCase();
 
         try(CSVParser csvParser = CSVParser.parse(url, StandardCharsets.UTF_8, csvFormat)) {
             for(CSVRecord csvRecord : csvParser) {
-                // csvRecord.get(0) == values (ton csv)
-                // csvLine ton csv après découpe
-                final String[] csvLine = csvRecord.get(0).split(";");
- 
                 final Map<CsvEnum, String> info = new TreeMap<>();
                 // use CsvEnum id for getting all info from csv
                 for (CsvEnum csvElementId : CsvEnum.values()) {
-                    info.put(csvElementId, csvLine[csvElementId.getIndex()]);
+                    info.put(csvElementId, csvRecord.get(csvElementId.getIndex()));
                 }
                 combinedInfo.put(info.get(CsvEnum.START_DATE), info);
 
