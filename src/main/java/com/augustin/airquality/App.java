@@ -19,8 +19,13 @@ public class App
 {
     private static final Logger logger = LogManager.getLogger(App.class);
     private static final String ROOT_URL =  "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/";
-    public static void main( String[] args )
-    {
+    
+    public static void main( String[] args ) {
+        fetchYearlyData();
+    }
+
+    
+    private static void fetchYearlyData() {
         Document root;
         Map<String,List<String>> yearlyData = new HashMap<>();
 
@@ -46,18 +51,17 @@ public class App
                 e.printStackTrace();
             }
         }
-
         logger.error(yearlyData);
     }
 
-    public static Document getDocument(final String address) throws IOException {
+    private static Document getDocument(final String address) throws IOException {
         // retrieve home data page
         Document doc;
         doc = Jsoup.connect(address).get();
         return doc;
     }
 
-    public static List<String> getCsvUrl(final Document yearDoc) throws IOException {
+    private static List<String> getCsvUrl(final Document yearDoc) throws IOException {
         List<String> resultBuffer = new ArrayList<>();
         for (Element element : yearDoc.select("pre > a")) {
             if (element.absUrl("href").endsWith(".csv")) {
