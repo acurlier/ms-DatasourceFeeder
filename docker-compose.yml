@@ -1,7 +1,25 @@
 version: '3.4'
 
 services:
-  http-parser:
+  ms-datasource-feeder:
     build:
       context: .
-    image: airquality/http-parser:0.1
+    image: airquality/ms-datasource-feeder:0.1
+    networks:
+      - isolated    
+
+  influx:
+    container_name: influxDB
+    image: influxdb:2.0
+    volumes:
+      - influxdb2:/var/lib/influxdb2
+    ports:
+      - 8086:8086
+    networks:
+      - isolated
+
+volumes:
+  influxdb2:
+
+networks:
+  isolated:

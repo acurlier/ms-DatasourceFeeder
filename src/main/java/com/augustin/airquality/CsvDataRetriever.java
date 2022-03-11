@@ -13,8 +13,13 @@ import com.augustin.airquality.CsvEnum;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class CsvDataRetriever {
+    
+    private static final Logger logger = LogManager.getLogger(CsvDataRetriever.class);
+
     public static List<Map<CsvEnum, String>> getInfoTableFromURL(String targetURL) throws MalformedURLException {
         // we store our data in combinedInfo with the schema
         // { 2022/03/09 03:00:00: [{ 0: 2022/03/09 03:00:00 }, { 1: 2022/03/09 04:00:00 }, ... ] }
@@ -32,33 +37,9 @@ public final class CsvDataRetriever {
                 }
                 combinedInfo.add(info);
 
-                // old
-                // String bedDate = csvRecord.get(1);
-                // String endDate = csvRecord.get("Date de fin");
-                // String org = csvRecord.get("Organisme");
-                // String codeZaz = csvRecord.get("code zas");
-                // String zaz = csvRecord.get("Zas");
-                // String codeSite = csvRecord.get("code site");
-                // String nameSite = csvRecord.get("nom site");
-                // String typeImplant = csvRecord.get("type d'implantation");
-                // String polluant = csvRecord.get("Polluant");
-                // String typeInfluence = csvRecord.get("type d'influence");
-                // String discriminant = csvRecord.get("discriminant");
-                // String reglementaire = csvRecord.get("Réglementaire");
-                // String typeEval = csvRecord.get("type d'évaluation");
-                // String procMeasure = csvRecord.get("procédure de mesure");
-                // String typeValue = csvRecord.get("type de valeur");
-                // String value = csvRecord.get("valeur");
-                // String rawValue = csvRecord.get("valeur brute");
-                // String unit = csvRecord.get("unité de mesure");
-                // String txSaisie = csvRecord.get("taux de saisie");
-                // String couvTemp = csvRecord.get("couverture temporelle");
-                // String couvData = csvRecord.get("couverture de données");
-                // String codeQuality = csvRecord.get("code qualité");
-                // String validity = csvRecord.get("validité");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return combinedInfo;
     }
