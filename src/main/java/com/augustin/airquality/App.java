@@ -21,54 +21,7 @@ public class App
     private static final String ROOT_URL =  "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/";
     
     public static void main( String[] args ) {
-        fetchYearlyData();
+      System.out.println("Hello World");
     }
-
-    
-    private static void fetchYearlyData() {
-        Document root;
-        Map<String,List<String>> yearlyData = new HashMap<>();
-
-        try {
-            root = getDocument(ROOT_URL);
-            
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            return;           
-        }
-        // 
-
-        Elements yearLinks = root.select("pre > a");
-        for (Element element : yearLinks) {
-            String yearAddress = element.absUrl("href");
-            if(ROOT_URL.equals(yearAddress)) {
-                continue;              
-            }
-            try {
-                Document yearDoc = getDocument(yearAddress);
-                yearlyData.put(yearAddress.replace(ROOT_URL, "").replace("/", ""), getCsvUrl(yearDoc));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        logger.error(yearlyData);
-    }
-
-    private static Document getDocument(final String address) throws IOException {
-        // retrieve home data page
-        Document doc;
-        doc = Jsoup.connect(address).get();
-        return doc;
-    }
-
-    private static List<String> getCsvUrl(final Document yearDoc) throws IOException {
-        List<String> resultBuffer = new ArrayList<>();
-        for (Element element : yearDoc.select("pre > a")) {
-            if (element.absUrl("href").endsWith(".csv")) {
-                resultBuffer.add(element.absUrl("href"));
-            }      
-        }
-        return resultBuffer;
-    }
-
 }
+  
