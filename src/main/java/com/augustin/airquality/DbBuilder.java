@@ -9,9 +9,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.MalformedURLException;
-import java.time.Instant;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DbBuilder {
@@ -22,7 +24,7 @@ public class DbBuilder {
 
         try {
             List<Map<CsvEnum, String>> combinedInfo = CsvDataRetriever.getInfoTableFromURL(url);
-            pushToDb(combinedInfo);   
+            pushToDb(combinedInfo);
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             logger.error(e.getMessage());
@@ -31,7 +33,7 @@ public class DbBuilder {
 
     public static void pushToDb(List<Map<CsvEnum, String>> dataToBePushed) {
         // You can generate a Token from the "Tokens Tab" in the UI
-        String token = "mBEF7dGICSwqpO06Lw-UOcNB60fYaMdzV9Rf3p1L-HygqMXExg-ogVH67ipIzxMLI_CkXJWAus1C2ANqxKQ0Ig==";
+        String token = "4N6L-eUISaecDxK4fKSWkaZ-CJkyiV6sOqPp-N-GebCeC9dmfb21vmnUh1aXuI0FtPVIbxUYCKkZE3bKlUendw==";
         String bucket = "airData";
         String org = "airquality";
 
@@ -40,27 +42,46 @@ public class DbBuilder {
         List<Point> points = new ArrayList<>();
 
         for (Map<CsvEnum, String> row : dataToBePushed) {
-            points.add(csvRowToPoint(row));
+            try {
+                points.add(csvRowToPoint(row));
+            } catch (IllegalArgumentException argumentException) {
+                logger.info(argumentException.getMessage());
+            }
         }
 
         try (WriteApi writeApi = client.getWriteApi()) {
             writeApi.writePoints(bucket, org, points);
+        } catch (Exception exception) {
+            System.out.println(exception);
         }
     }
 
     public static Point csvRowToPoint(Map<CsvEnum, String> row) {
-        Point point = Point
-                .measurement("pollutant")
-                .addField(CsvEnum.VALUE.getTag(), row.get(CsvEnum.VALUE))
-                .addField(CsvEnum.UNIT.getTag(), row.get(CsvEnum.UNIT))
-                .time(Instant.now(), WritePrecision.NS);
+        if (!row.get(CsvEnum.VALUE).isEmpty()) {
+            Point point = Point
+                    .measurement(row.get(CsvEnum.POLLUANT))
+                    .addField(CsvEnum.VALUE.getTag(), Double.valueOf(row.get(CsvEnum.VALUE)))
+                    .time(convertCsvEndTimeToInfluxTime(row.get(CsvEnum.END_DATE)), WritePrecision.NS);
 
-        for (CsvEnum csvColumn : CsvEnum.values()) {
-            if (csvColumn != CsvEnum.VALUE && csvColumn != CsvEnum.UNIT) {
-                point.addTag(csvColumn.getTag(), row.get(csvColumn));
+            for (CsvEnum csvColumn : CsvEnum.values()) {
+                if (csvColumn.isInInfluxAsTag()) {
+                    point.addTag(csvColumn.getTag(), row.get(csvColumn));
+                }
             }
+            return point;
+        } else {
+            throw new IllegalArgumentException(String.format("Value %s can't be empty", CsvEnum.VALUE.getCsvHeaderName()));
         }
+    }
 
-        return point;
+    /**
+     * Convert date into instant
+     * @param date (2022/03/09 01:00:00)
+     * @return instant date
+     */
+    public static Instant convertCsvEndTimeToInfluxTime(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        return dateTime.toInstant(ZoneOffset.UTC);
     }
 }

@@ -1,6 +1,7 @@
 package com.augustin.airquality;
 
 import java.net.MalformedURLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,5 +19,10 @@ public class DbBuilderTest {
     public void testPushToDb() {
         String url = "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/2022/FR_E2_2022-03-09.csv";
         DbBuilder.buildDatabase(url);
+    }
+
+    @Test
+    public void convertCsvEndTimeToInfluxTime() {
+        DbBuilder.convertCsvEndTimeToInfluxTime("2022/03/09 01:00:00");
     }
 }
