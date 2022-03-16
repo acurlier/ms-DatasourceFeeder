@@ -33,7 +33,9 @@ public class DbBuilder {
 
     public static void pushToDb(List<Map<CsvEnum, String>> dataToBePushed) {
         // You can generate a Token from the "Tokens Tab" in the UI
-        String token = "4N6L-eUISaecDxK4fKSWkaZ-CJkyiV6sOqPp-N-GebCeC9dmfb21vmnUh1aXuI0FtPVIbxUYCKkZE3bKlUendw==";
+        String token = "mBEF7dGICSwqpO06Lw-UOcNB60fYaMdzV9Rf3p1L-HygqMXExg-ogVH67ipIzxMLI_CkXJWAus1C2ANqxKQ0Ig==";
+        //String token = "4N6L-eUISaecDxK4fKSWkaZ-CJkyiV6sOqPp-N-GebCeC9dmfb21vmnUh1aXuI0FtPVIbxUYCKkZE3bKlUendw==";
+
         String bucket = "airData";
         String org = "airquality";
 
