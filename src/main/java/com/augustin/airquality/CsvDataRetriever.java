@@ -33,10 +33,13 @@ public final class CsvDataRetriever {
                 final Map<CsvEnum, String> info = new TreeMap<>();
                 // use CsvEnum id for getting all info from csv
                 for (CsvEnum csvElementId : CsvEnum.values()) {
-                    info.put(csvElementId, csvRecord.get(csvElementId.getIndex()));
+                    try {
+                        info.put(csvElementId, csvRecord.get(csvElementId.getCsvHeaderName()));
+                    } catch (IllegalArgumentException e) {
+                        info.put(csvElementId, "N/A");
+                    }
                 }
                 combinedInfo.add(info);
-
             }
         } catch (IOException e) {
             logger.error(e.getMessage());

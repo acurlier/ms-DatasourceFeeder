@@ -1,5 +1,6 @@
 package com.augustin.airquality;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,16 +16,7 @@ public class DbBuilderTest {
 
     @Test
     public void testPushToDb() {
-
-        List<Map<CsvEnum, String>> combinedInfo = new ArrayList<>();
-        Map<CsvEnum, String> dummyData = new TreeMap<>();
-
-        dummyData.put(CsvEnum.START_DATE, "11/03/22");
-        dummyData.put(CsvEnum.END_DATE, "11/03/22");
-
-        combinedInfo.add(dummyData);
-
-        DbBuilder.pushToDb(combinedInfo);
-
+        String url = "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/2022/FR_E2_2022-03-09.csv";
+        DbBuilder.buildDatabase(url);
     }
 }

@@ -1,30 +1,25 @@
 package com.augustin.airquality;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-import java.time.Instant;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import com.influxdb.annotations.Column;
-import com.influxdb.annotations.Measurement;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import com.influxdb.query.FluxTable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.MalformedURLException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class DbBuilder {
 
     private static final Logger logger = LogManager.getLogger(CsvDataRetriever.class);
 
-    public static void buildDatabase() {
-        
-        String url = "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/2022/FR_E2_2022-03-09.csv";        
-        
+    public static void buildDatabase(String url) {
+
         try {
             List<Map<CsvEnum, String>> combinedInfo = CsvDataRetriever.getInfoTableFromURL(url);
             pushToDb(combinedInfo);   
@@ -41,16 +36,31 @@ public class DbBuilder {
         String org = "airquality";
 
         InfluxDBClient client = InfluxDBClientFactory.create("http://127.0.0.1:8086", token.toCharArray());
-        
-        Point point = Point
-        .measurement("mem")
-        .addTag("host", "host1")
-        .addField("used_percent", 23.43234543)
-        .time(Instant.now(), WritePrecision.NS);
-      
-        try (WriteApi writeApi = client.getWriteApi()) {
-            writeApi.writePoint(bucket, org, point);
+
+        List<Point> points = new ArrayList<>();
+
+        for (Map<CsvEnum, String> row : dataToBePushed) {
+            points.add(csvRowToPoint(row));
         }
-    }    
-    
+
+        try (WriteApi writeApi = client.getWriteApi()) {
+            writeApi.writePoints(bucket, org, points);
+        }
+    }
+
+    public static Point csvRowToPoint(Map<CsvEnum, String> row) {
+        Point point = Point
+                .measurement("pollutant")
+                .addField(CsvEnum.VALUE.getTag(), row.get(CsvEnum.VALUE))
+                .addField(CsvEnum.UNIT.getTag(), row.get(CsvEnum.UNIT))
+                .time(Instant.now(), WritePrecision.NS);
+
+        for (CsvEnum csvColumn : CsvEnum.values()) {
+            if (csvColumn != CsvEnum.VALUE && csvColumn != CsvEnum.UNIT) {
+                point.addTag(csvColumn.getTag(), row.get(csvColumn));
+            }
+        }
+
+        return point;
+    }
 }
