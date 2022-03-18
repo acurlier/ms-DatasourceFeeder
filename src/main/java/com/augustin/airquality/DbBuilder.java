@@ -8,12 +8,14 @@ import com.influxdb.client.write.Point;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class DbBuilder {
@@ -21,13 +23,24 @@ public class DbBuilder {
     private static final Logger logger = LogManager.getLogger(CsvDataRetriever.class);
 
     public static void buildDatabase(String url) {
-
         try {
-            List<Map<CsvEnum, String>> combinedInfo = CsvDataRetriever.getInfoTableFromURL(url);
-            pushToDb(combinedInfo);
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            logger.error(e.getMessage());
+            final Map<String, List<String>> csvList = CsvListRetriever.retrieveCsvList(url);
+
+            for (String csvUrl : csvList.get("2022")) {
+                System.out.println("Csv Loading: " + csvUrl);
+                try {
+                    final List<Map<CsvEnum, String>> combinedInfo = CsvDataRetriever.getInfoTableFromURL(csvUrl);
+                    pushToDb(combinedInfo);
+                } catch (MalformedURLException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+
+//            for (Map.Entry<String, List<String>> csvForOneYear : csvList.entrySet()) {
+//
+//            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -78,6 +91,7 @@ public class DbBuilder {
 
     /**
      * Convert date into instant
+     *
      * @param date (2022/03/09 01:00:00)
      * @return instant date
      */

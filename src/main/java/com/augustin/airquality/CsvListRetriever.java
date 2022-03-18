@@ -15,16 +15,14 @@ import org.jsoup.select.Elements;
 
 public class CsvListRetriever {
     private static final Logger logger = LogManager.getLogger(CsvListRetriever.class);
-    private static final String ROOT_URL =  
-    "https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/";
 
-    public static Map<String, List<String>> retrieveCsvList() throws IOException {
+    public static Map<String, List<String>> retrieveCsvList(String url) throws IOException {
 
         Document root;
         Map<String,List<String>> yearlyData = new HashMap<>();
 
         try {
-            root = getDocument(ROOT_URL);
+            root = getDocument(url);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -36,12 +34,12 @@ public class CsvListRetriever {
         for (Element element : yearLinks) {
             // for each year, retrieve the link to all csv dataset
             String yearAddress = element.absUrl("href");
-            if(ROOT_URL.equals(yearAddress)) {
+            if(url.equals(yearAddress)) {
                 continue;              
             }
             try {
                 Document yearDoc = getDocument(yearAddress);
-                yearlyData.put(yearAddress.replace(ROOT_URL, "").replace("/", ""), getCsvUrl(yearDoc));
+                yearlyData.put(yearAddress.replace(url, "").replace("/", ""), getCsvUrl(yearDoc));
             } catch (IOException e) {
                 e.printStackTrace();
             }
